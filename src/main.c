@@ -30,6 +30,44 @@ char* read_input() {
     return input;
 }
 
+char** parse(char *input) {
+    int buffer_size = 64;
+    int position = 0;
+    char **tokens = (char**)malloc(buffer_size * sizeof(char*));
+    char *token;
+
+    if (tokens == NULL) {
+        fprintf(stderr, "Cannot allocate memory\n");
+        exit(EXIT_FAILURE);
+    }
+
+    token = strtok(input, DELIMS);
+
+    while (token != NULL) {
+        tokens[position] = token;
+        position++;
+
+        if (position >= buffer_size) {
+            buffer_size *= 2;
+
+            char **temp = (char**)realloc(tokens,  buffer_size * sizeof(char*));
+
+            if(temp == NULL) {
+                fprintf(stderr, "Cannot reallocate memory\n");
+                exit(EXIT_FAILURE);
+            }
+
+            tokens = temp;
+        }
+
+        token = strtok(NULL, DELIMS);
+    }
+
+    tokens[position] = NULL;
+
+    return tokens;
+}
+
 int main() {
    while (true) {
         prompt_display();
@@ -39,7 +77,10 @@ int main() {
             break;
         }
 
+        char **args = parse(input);
+
         free(input); input = NULL;
+        free(args); args = NULL;
     }
 
     return 0;

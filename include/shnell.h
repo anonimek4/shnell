@@ -10,9 +10,11 @@
 
 #define INPUT_BUFFER_SIZE 1024
 #define BRIGHT_BLUE "\033[94m"
+#define DELIMS " \t\n"
 #define RESET "\033[0m"
 
 void prompt_display();
 char* read_input();
+char** parse(char*);
 
 #endif 
