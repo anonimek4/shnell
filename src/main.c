@@ -1,42 +1,19 @@
 #include "../include/shnell.h"
 
-void prompt_display()
-{
-    char buffer[PATH_MAX];
-
-    if (getcwd(buffer, PATH_MAX) == NULL)
-    {
-        fprintf(stderr, "Cannot get current working directory\n");
-        exit(EXIT_FAILURE);
-    }
-
-    printf("%s%s$%s ", BRIGHT_BLUE, buffer, RESET);
-}
-
-char *read_input()
-{
-    char *input = (char *)malloc(INPUT_BUFFER_SIZE * sizeof(char));
-
-    if (input == NULL)
-    {
-        fprintf(stderr, "Cannot allocate memory\n");
-        exit(EXIT_FAILURE);
-    }
-
-    if (fgets(input, INPUT_BUFFER_SIZE, stdin) == NULL)
-    {
-        free(input);
-        input = NULL;
-        return NULL;
-    }
-
-    input[strcspn(input, "\n")] = '\0';
-
-    return input;
-}
-
 int main()
 {
+    char path[PATH_MAX];
+
+    if (getcwd(path, PATH_MAX) == NULL) {
+        fprintf(stderr, "%s: getcwd error\n", EXECUTABLE_NAME);
+        exit(EXIT_FAILURE);
+    }
+
+    if (setenv("SHELL", path, 1) != 0) {
+        fprintf(stderr, "%s: setenv error\n", EXECUTABLE_NAME);
+        exit(EXIT_FAILURE);
+    }
+
     while (true)
     {
         prompt_display();

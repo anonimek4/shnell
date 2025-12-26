@@ -1,6 +1,7 @@
 #ifndef SHNELL_H
 #define SHNELL_H
 
+// LIBRARIES
 #include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -8,6 +9,7 @@
 #include <string.h>
 #include <unistd.h>
 
+// CONSTANTS
 #define INPUT_BUFFER_SIZE 1024
 #define BRIGHT_BLUE "\033[94m"
 #define DELIMS " \t\n"
@@ -15,6 +17,7 @@
 #define MALLOC_ERROR "Error: Failed to allocate memory (malloc)"
 #define EXECUTABLE_NAME "shnell"
 
+// STRUCT DECLARATIONS
 typedef struct
 {
     char **argv;
@@ -25,13 +28,13 @@ typedef struct
     bool background;
 } Command;
 
+// FUNCTION PROTOTYPES
+
+// utils.c
 void prompt_display();
 char *read_input();
+Command *command_new();
+void command_free(Command *);
 Command *parse(char *);
-
-//utils.c
-Command* command_new();
-void command_free(Command*);
-
 
 #endif
