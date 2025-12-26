@@ -43,6 +43,7 @@ Command *command_new();
 void command_free(Command *);
 Command *parse(char *);
 void handle_cd(Command *);
+void handle_clr(Command *);
 void command_execute(Command *);
 
 #endif

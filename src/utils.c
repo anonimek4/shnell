@@ -2,6 +2,7 @@
 
 InternalCommand internal_commands[] = {
     {"cd", handle_cd},
+    {"clr", handle_clr},
     {NULL, NULL},
 };
 
@@ -162,6 +163,11 @@ void handle_cd(Command *cmd)
     {
         fprintf(stderr, "%s: cd: %s: No such file or directory\n", EXECUTABLE_NAME, cmd->argv[1]);
     }
+}
+
+void handle_clr(Command *)
+{
+    printf("\033[2J\033[H");
 }
 
 void command_execute(Command *cmd)
