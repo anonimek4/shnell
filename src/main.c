@@ -4,12 +4,14 @@ int main()
 {
     char path[PATH_MAX];
 
-    if (getcwd(path, PATH_MAX) == NULL) {
+    if (getcwd(path, PATH_MAX) == NULL)
+    {
         fprintf(stderr, "%s: getcwd error\n", EXECUTABLE_NAME);
         exit(EXIT_FAILURE);
     }
 
-    if (setenv("SHELL", path, 1) != 0) {
+    if (setenv("SHELL", path, 1) != 0)
+    {
         fprintf(stderr, "%s: setenv error\n", EXECUTABLE_NAME);
         exit(EXIT_FAILURE);
     }
@@ -25,6 +27,7 @@ int main()
         }
 
         Command *cmd = parse(input);
+        command_execute(cmd);
         command_free(cmd);
     }
 

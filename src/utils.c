@@ -1,5 +1,10 @@
 #include "../include/shnell.h"
 
+InternalCommand internal_commands[] = {
+    {"cd", handle_cd},
+    {NULL, NULL},
+};
+
 void prompt_display()
 {
     char buffer[PATH_MAX];
@@ -145,4 +150,28 @@ Command *parse(char *input)
     cmd->argv[i] = NULL;
 
     return cmd;
+}
+
+void handle_cd(Command *cmd)
+{
+    if (cmd->argv[1] == NULL)
+    {
+        fprintf(stderr, "Usage: cd <dir_name>\n");
+    }
+    else if (chdir(cmd->argv[1]) != 0)
+    {
+        fprintf(stderr, "%s: cd: %s: No such file or directory\n", EXECUTABLE_NAME, cmd->argv[1]);
+    }
+}
+
+void command_execute(Command *cmd)
+{
+    for (InternalCommand *ic = internal_commands; ic->name != NULL; ic++)
+    {
+        if (strcmp(cmd->argv[0], ic->name) == 0)
+        {
+            ic->handler(cmd);
+            return;
+        }
+    }
 }

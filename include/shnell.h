@@ -28,6 +28,12 @@ typedef struct
     bool background;
 } Command;
 
+typedef struct
+{
+    const char *name;
+    void (*handler)(Command *cmd);
+} InternalCommand;
+
 // FUNCTION PROTOTYPES
 
 // utils.c
@@ -36,5 +42,7 @@ char *read_input();
 Command *command_new();
 void command_free(Command *);
 Command *parse(char *);
+void handle_cd(Command *);
+void command_execute(Command *);
 
 #endif
