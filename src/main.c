@@ -1,25 +1,30 @@
 #include "../include/shnell.h"
 
-void prompt_display() {
+void prompt_display()
+{
     char buffer[PATH_MAX];
 
-    if (getcwd(buffer, PATH_MAX) == NULL) {
+    if (getcwd(buffer, PATH_MAX) == NULL)
+    {
         fprintf(stderr, "Cannot get current working directory\n");
         exit(EXIT_FAILURE);
     }
-    
+
     printf("%s%s$%s ", BRIGHT_BLUE, buffer, RESET);
 }
 
-char* read_input() {
-    char *input = (char*)malloc(INPUT_BUFFER_SIZE * sizeof(char));
+char *read_input()
+{
+    char *input = (char *)malloc(INPUT_BUFFER_SIZE * sizeof(char));
 
-    if (input == NULL) {
+    if (input == NULL)
+    {
         fprintf(stderr, "Cannot allocate memory\n");
         exit(EXIT_FAILURE);
     }
 
-    if (fgets(input, INPUT_BUFFER_SIZE, stdin) == NULL) {
+    if (fgets(input, INPUT_BUFFER_SIZE, stdin) == NULL)
+    {
         free(input);
         input = NULL;
         return NULL;
@@ -30,57 +35,108 @@ char* read_input() {
     return input;
 }
 
-char** parse(char *input) {
-    int buffer_size = 64;
-    int position = 0;
-    char **tokens = (char**)malloc(buffer_size * sizeof(char*));
-    char *token;
+Command *parse(char *input)
+{
+    Command *cmd = (Command *)malloc(sizeof(Command));
 
-    if (tokens == NULL) {
+    if (cmd == NULL)
+    {
         fprintf(stderr, "Cannot allocate memory\n");
         exit(EXIT_FAILURE);
     }
 
-    token = strtok(input, DELIMS);
+    cmd->argv_capacity = 8;
+    cmd->argv = (char **)malloc(cmd->argv_capacity * sizeof(char *));
 
-    while (token != NULL) {
-        tokens[position] = token;
-        position++;
+    if (cmd->argv == NULL)
+    {
+        fprintf(stderr, "Cannot allocate memory\n");
+        exit(EXIT_FAILURE);
+    }
 
-        if (position >= buffer_size) {
-            buffer_size *= 2;
+    cmd->input_file = NULL;
+    cmd->output_file = NULL;
+    cmd->append = false;
+    cmd->background = false;
 
-            char **temp = (char**)realloc(tokens,  buffer_size * sizeof(char*));
+    char *token = strtok(input, DELIMS);
+    size_t i = 0;
 
-            if(temp == NULL) {
+    while (token != NULL)
+    {
+        if (i >= cmd->argv_capacity)
+        {
+            cmd->argv_capacity *= 2;
+
+            char **temp = (char **)realloc(cmd->argv, cmd->argv_capacity * sizeof(char *));
+
+            if (temp == NULL)
+            {
                 fprintf(stderr, "Cannot reallocate memory\n");
                 exit(EXIT_FAILURE);
             }
 
-            tokens = temp;
+            cmd->argv = temp;
+        }
+
+        if (strcmp(token, "<") == 0)
+        {
+            token = strtok(NULL, DELIMS);
+            cmd->input_file = token;
+        }
+        else if (strcmp(token, ">") == 0)
+        {
+            token = strtok(NULL, DELIMS);
+            cmd->output_file = token;
+            cmd->append = false;
+        }
+        else if (strcmp(token, ">>") == 0)
+        {
+            token = strtok(NULL, DELIMS);
+            cmd->output_file = token;
+            cmd->append = true;
+        }
+        else if (strcmp(token, "&") == 0)
+        {
+            cmd->background = true;
+        }
+        else
+        {
+            cmd->argv[i] = strdup(token);
+            i++;
         }
 
         token = strtok(NULL, DELIMS);
     }
 
-    tokens[position] = NULL;
+    cmd->argv[i] = NULL;
 
-    return tokens;
+    return cmd;
 }
 
-int main() {
-   while (true) {
+int main()
+{
+    while (true)
+    {
         prompt_display();
         char *input = read_input();
 
-        if (input == NULL) {
+        if (input == NULL)
+        {
             break;
         }
 
-        char **args = parse(input);
+        Command *cmd = parse(input);
 
-        free(input); input = NULL;
-        free(args); args = NULL;
+        for (size_t i = 0; i < cmd->argv_capacity; i++)
+        {
+            if (cmd->argv[i] == NULL)
+            {
+                break;
+            }
+
+            printf("%s\n", cmd->argv[i]);
+        }
     }
 
     return 0;

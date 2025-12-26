@@ -13,8 +13,18 @@
 #define DELIMS " \t\n"
 #define RESET "\033[0m"
 
-void prompt_display();
-char* read_input();
-char** parse(char*);
+typedef struct
+{
+    char **argv;
+    size_t argv_capacity;
+    char *input_file;
+    char *output_file;
+    bool append;
+    bool background;
+} Command;
 
-#endif 
+void prompt_display();
+char *read_input();
+Command *parse(char *);
+
+#endif
