@@ -44,6 +44,7 @@ void command_free(Command *);
 Command *parse(char *);
 void handle_cd(Command *);
 void handle_clr(Command *);
+void handle_pause(Command *);
 void command_execute(Command *);
 
 #endif
