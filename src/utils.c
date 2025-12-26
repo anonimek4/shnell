@@ -4,6 +4,7 @@ InternalCommand internal_commands[] = {
     {"cd", handle_cd},
     {"clr", handle_clr},
     {"pause", handle_pause},
+    {"quit", handle_quit},
     {NULL, NULL},
 };
 
@@ -176,6 +177,11 @@ void handle_pause(Command *)
     char buffer[256];
     printf("Press Enter to continue...");
     fgets(buffer, sizeof(buffer), stdin);
+}
+
+void handle_quit(Command *)
+{
+    exit(EXIT_SUCCESS);
 }
 
 void command_execute(Command *cmd)
