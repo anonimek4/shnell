@@ -186,6 +186,8 @@ void handle_quit(Command *)
 
 void command_execute(Command *cmd)
 {
+    if (cmd->argv[0] == NULL) return;
+    
     for (InternalCommand *ic = internal_commands; ic->name != NULL; ic++)
     {
         if (strcmp(cmd->argv[0], ic->name) == 0)
