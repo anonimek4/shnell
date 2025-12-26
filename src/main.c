@@ -35,85 +35,6 @@ char *read_input()
     return input;
 }
 
-Command *parse(char *input)
-{
-    Command *cmd = (Command *)malloc(sizeof(Command));
-
-    if (cmd == NULL)
-    {
-        fprintf(stderr, "Cannot allocate memory\n");
-        exit(EXIT_FAILURE);
-    }
-
-    cmd->argv_capacity = 8;
-    cmd->argv = (char **)malloc(cmd->argv_capacity * sizeof(char *));
-
-    if (cmd->argv == NULL)
-    {
-        fprintf(stderr, "Cannot allocate memory\n");
-        exit(EXIT_FAILURE);
-    }
-
-    cmd->input_file = NULL;
-    cmd->output_file = NULL;
-    cmd->append = false;
-    cmd->background = false;
-
-    char *token = strtok(input, DELIMS);
-    size_t i = 0;
-
-    while (token != NULL)
-    {
-        if (i >= cmd->argv_capacity)
-        {
-            cmd->argv_capacity *= 2;
-
-            char **temp = (char **)realloc(cmd->argv, cmd->argv_capacity * sizeof(char *));
-
-            if (temp == NULL)
-            {
-                fprintf(stderr, "Cannot reallocate memory\n");
-                exit(EXIT_FAILURE);
-            }
-
-            cmd->argv = temp;
-        }
-
-        if (strcmp(token, "<") == 0)
-        {
-            token = strtok(NULL, DELIMS);
-            cmd->input_file = token;
-        }
-        else if (strcmp(token, ">") == 0)
-        {
-            token = strtok(NULL, DELIMS);
-            cmd->output_file = token;
-            cmd->append = false;
-        }
-        else if (strcmp(token, ">>") == 0)
-        {
-            token = strtok(NULL, DELIMS);
-            cmd->output_file = token;
-            cmd->append = true;
-        }
-        else if (strcmp(token, "&") == 0)
-        {
-            cmd->background = true;
-        }
-        else
-        {
-            cmd->argv[i] = strdup(token);
-            i++;
-        }
-
-        token = strtok(NULL, DELIMS);
-    }
-
-    cmd->argv[i] = NULL;
-
-    return cmd;
-}
-
 int main()
 {
     while (true)
@@ -127,16 +48,7 @@ int main()
         }
 
         Command *cmd = parse(input);
-
-        for (size_t i = 0; i < cmd->argv_capacity; i++)
-        {
-            if (cmd->argv[i] == NULL)
-            {
-                break;
-            }
-
-            printf("%s\n", cmd->argv[i]);
-        }
+        command_free(cmd);
     }
 
     return 0;
