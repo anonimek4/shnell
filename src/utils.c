@@ -14,7 +14,7 @@ void prompt_display()
 
     if (getcwd(buffer, PATH_MAX) == NULL)
     {
-        fprintf(stderr, "Cannot get current working directory\n");
+        fprintf(stderr, "%s: %s\n", EXECUTABLE_NAME, strerror(errno));
         exit(EXIT_FAILURE);
     }
 
@@ -186,14 +186,76 @@ void handle_quit(Command *)
 
 void command_execute(Command *cmd)
 {
-    if (cmd->argv[0] == NULL) return;
-    
+    if (cmd->argv[0] == NULL)
+        return;
+
     for (InternalCommand *ic = internal_commands; ic->name != NULL; ic++)
     {
         if (strcmp(cmd->argv[0], ic->name) == 0)
         {
             ic->handler(cmd);
             return;
+        }
+    }
+
+    pid_t pid = fork();
+
+    if (pid == -1)
+    {
+        fprintf(stderr, "fork failed\n");
+        return;
+    }
+    else if (pid == 0)
+    {
+        // child proc
+
+        if (cmd->input_file != NULL)
+        {
+            int fd = open(cmd->input_file, O_RDONLY);
+
+            if (fd == -1)
+            {
+                fprintf(stderr, "open failed\n");
+                return;
+            }
+
+            dup2(fd, STDIN_FILENO);
+            close(fd);
+        }
+
+        if (cmd->output_file != NULL)
+        {
+            int flags = O_WRONLY | O_CREAT;
+            flags = cmd->append ? flags | O_APPEND : flags | O_TRUNC;
+            mode_t mode = 0644;
+
+            int fd = open(cmd->output_file, flags, mode);
+
+            if (fd == -1)
+            {
+                fprintf(stderr, "open failed\n");
+                return;
+            }
+
+            dup2(fd, STDOUT_FILENO);
+            close(fd);
+        }
+
+        execvp(cmd->argv[0], cmd->argv);
+
+        fprintf(stderr, "%s: %s: %s\n", EXECUTABLE_NAME, cmd->argv[0], strerror(errno));
+        return;
+    }
+    else
+    {
+        if (!cmd->background)
+        {
+            int status;
+            waitpid(pid, &status, 0);
+        }
+        else
+        {
+            printf("[%d]\n", pid);
         }
     }
 }

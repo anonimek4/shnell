@@ -2,11 +2,14 @@
 #define SHNELL_H
 
 // LIBRARIES
-#include <limits.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <linux/limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 // CONSTANTS
