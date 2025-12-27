@@ -27,7 +27,7 @@ char *read_input()
 
     if (input == NULL)
     {
-        fprintf(stderr, "Cannot allocate memory\n");
+        fprintf(stderr, "%s: %s\n", EXECUTABLE_NAME, strerror(errno));
         exit(EXIT_FAILURE);
     }
 
@@ -49,12 +49,19 @@ Command *command_new()
 
     if (cmd == NULL)
     {
-        perror(MALLOC_ERROR);
+        fprintf(stderr, "%s: %s\n", EXECUTABLE_NAME, strerror(errno));
         exit(EXIT_FAILURE);
     }
 
     cmd->argv_capacity = 8;
     cmd->argv = (char **)malloc(cmd->argv_capacity * sizeof(char *));
+
+    if (cmd->argv == NULL)
+    {
+        fprintf(stderr, "%s: %s\n", EXECUTABLE_NAME, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+
     cmd->input_file = NULL;
     cmd->output_file = NULL;
     cmd->append = false;
@@ -99,7 +106,7 @@ Command *parse(char *input)
 
             if (temp == NULL)
             {
-                fprintf(stderr, "Cannot reallocate memory\n");
+                fprintf(stderr, "%s: %s\n", EXECUTABLE_NAME, strerror(errno));
                 exit(EXIT_FAILURE);
             }
 
@@ -112,7 +119,7 @@ Command *parse(char *input)
 
             if (token == NULL)
             {
-                fprintf(stderr, "%s: missing file name near '<'\n", EXECUTABLE_NAME);
+                fprintf(stderr, "%s: Missing file name near '<'\n", EXECUTABLE_NAME);
                 command_free(cmd);
                 return NULL;
             }
@@ -121,7 +128,7 @@ Command *parse(char *input)
 
             if (cmd->input_file == NULL)
             {
-                perror(MALLOC_ERROR);
+                fprintf(stderr, "%s: %s\n", EXECUTABLE_NAME, strerror(errno));
                 exit(EXIT_FAILURE);
             }
         }
@@ -202,7 +209,7 @@ void command_execute(Command *cmd)
 
     if (pid == -1)
     {
-        fprintf(stderr, "fork failed\n");
+        fprintf(stderr, "%s: %s: %s\n", EXECUTABLE_NAME, cmd->argv[0], strerror(errno));
         return;
     }
     else if (pid == 0)
@@ -215,7 +222,7 @@ void command_execute(Command *cmd)
 
             if (fd == -1)
             {
-                fprintf(stderr, "open failed\n");
+                fprintf(stderr, "%s: %s: %s\n", EXECUTABLE_NAME, cmd->input_file, strerror(errno));
                 return;
             }
 
@@ -233,7 +240,7 @@ void command_execute(Command *cmd)
 
             if (fd == -1)
             {
-                fprintf(stderr, "open failed\n");
+                fprintf(stderr, "%s: %s: %s\n", EXECUTABLE_NAME, cmd->output_file, strerror(errno));
                 return;
             }
 
@@ -244,7 +251,7 @@ void command_execute(Command *cmd)
         execvp(cmd->argv[0], cmd->argv);
 
         fprintf(stderr, "%s: %s: %s\n", EXECUTABLE_NAME, cmd->argv[0], strerror(errno));
-        return;
+        exit(EXIT_FAILURE);
     }
     else
     {
