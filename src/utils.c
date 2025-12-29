@@ -135,13 +135,43 @@ Command *parse(char *input)
         else if (strcmp(token, ">") == 0)
         {
             token = strtok(NULL, DELIMS);
+
+            if (token == NULL)
+            {
+                fprintf(stderr, "%s: Missing file name near '>'\n", EXECUTABLE_NAME);
+                command_free(cmd);
+                return NULL;
+            }
+
             cmd->output_file = strdup(token);
+
+            if (cmd->output_file == NULL)
+            {
+                fprintf(stderr, "%s: %s\n", EXECUTABLE_NAME, strerror(errno));
+                exit(EXIT_FAILURE);
+            }
+
             cmd->append = false;
         }
         else if (strcmp(token, ">>") == 0)
         {
             token = strtok(NULL, DELIMS);
+
+            if (token == NULL)
+            {
+                fprintf(stderr, "%s: Missing file name near '>>'\n", EXECUTABLE_NAME);
+                command_free(cmd);
+                return NULL;
+            }
+
             cmd->output_file = strdup(token);
+
+            if (cmd->output_file == NULL)
+            {
+                fprintf(stderr, "%s: %s\n", EXECUTABLE_NAME, strerror(errno));
+                exit(EXIT_FAILURE);
+            }
+
             cmd->append = true;
         }
         else if (strcmp(token, "&") == 0)
@@ -193,7 +223,7 @@ void handle_quit(Command *)
 
 void command_execute(Command *cmd)
 {
-    if (cmd->argv[0] == NULL)
+    if (cmd == NULL || cmd->argv[0] == NULL)
         return;
 
     for (InternalCommand *ic = internal_commands; ic->name != NULL; ic++)

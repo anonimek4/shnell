@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Iinclude -Wall -Wextra
+CFLAGS = -Iinclude -Wall -Wextra -g
 SRC = src/main.c src/utils.c
 OBJ = $(SRC:.c=.o)
 TARGET = bin/shnell
